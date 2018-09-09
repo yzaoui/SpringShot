@@ -1,0 +1,25 @@
+apply plugin: "application"
+
+sourceCompatibility = 1.8
+sourceSets.main.kotlin.srcDirs = [ "src/main/kotlin" ]
+sourceSets.main.resources.srcDirs = [ "src/main/resources" ]
+mainClassName = "com.bitwiserain.desktop.DesktopLauncher"
+
+dependencies {
+    compile project(":core")
+    compile "com.badlogicgames.gdx:gdx-backend-lwjgl:$gdxVersion"
+    compile "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+}
+
+jar {
+    archiveName "${appName}-${version}.jar"
+    from { configurations.compile.collect { zipTree(it) } }
+    manifest {
+        attributes 'Main-Class': project.mainClassName
+    }
+}
+
+run {
+    ignoreExitValue = true
+}
