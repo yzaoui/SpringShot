@@ -3,11 +3,15 @@ package com.bitwiserain.core
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import ktx.app.KtxScreen
+import ktx.math.vec2
 
 private const val TIMESTEP: Float = .01f
 
@@ -16,6 +20,9 @@ class MainScreen : KtxScreen {
     val img = Texture("player.png")
     val char = Character()
     var accumulator = 0f
+    val shapeRenderer = ShapeRenderer()
+    var held = false
+    val target = vec2()
 
     init {
         Gdx.input.inputProcessor = object : InputAdapter() {
@@ -39,6 +46,25 @@ class MainScreen : KtxScreen {
 
                 return true
             }
+
+            override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+                held = true
+                target.set(screenX.toFloat(), Gdx.graphics.height - screenY.toFloat())
+
+                return true
+            }
+
+            override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+                target.set(screenX.toFloat(), Gdx.graphics.height - screenY.toFloat())
+
+                return true
+            }
+
+            override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+                held = false
+
+                return true
+            }
         }
     }
 
@@ -50,13 +76,25 @@ class MainScreen : KtxScreen {
             accumulator -= TIMESTEP
         }
 
-        Gdx.gl.glClearColor(0f, 0f, 0f, 1f)
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-        batch.begin()
+        with (Gdx.gl) {
+            glClearColor(0f, 0f, 0f, 1f)
+            glClear(GL20.GL_COLOR_BUFFER_BIT)
+        }
 
-        batch.draw(img, char.pos.x, char.pos.y)
+        with (batch) {
+            begin()
 
-        batch.end()
+            draw(img, char.x, char.y)
+
+            end()
+        }
+
+        if (held) with (shapeRenderer) {
+            begin(ShapeRenderer.ShapeType.Line)
+            color = Color.FIREBRICK
+            curve(char.x + (char.width / 2), char.y + (char.height / 2), char.x + 100f, char.y + 100f, char.x + 200f, char.y + 200f, target.x, 0f, 100)
+            end()
+        }
     }
 
     fun update() {
@@ -85,12 +123,12 @@ enum class Facing {
     RIGHT
 }
 
-private val GRAVITY = Vector2(0f, -0.3f)
+private val GRAVITY = vec2(0f, -0.3f)
 
-class Character(val pos: Vector2 = Vector2(100f, 0f)) {
+class Character : Rectangle(100f, 100f, 32f, 32f) {
     private var horizontalState = HorizontalState.IDLE
     private var facing = Facing.RIGHT
-    private val vel = Vector2(3f, 0f)
+    private val vel = vec2(3f, 0f)
     private var verticalState = VerticalState.GROUND
 
     fun pressLeft() {
@@ -133,19 +171,19 @@ class Character(val pos: Vector2 = Vector2(100f, 0f)) {
         vel.add(GRAVITY)
 
         if (horizontalState == HorizontalState.MOVING) {
-            pos.x += when(facing) {
+            x += when(facing) {
                 Facing.LEFT -> -vel.x
                 Facing.RIGHT -> vel.x
             }
         }
 
-        if (pos.y + vel.y <= 0) {
-            pos.y = 0f
+        if (y + vel.y <= 0) {
+            y = 0f
             vel.y = 0f
         } else {
-            pos.y += vel.y
+            y += vel.y
         }
 
-        verticalState = if (pos.y > 0) VerticalState.AIR else VerticalState.GROUND
+        verticalState = if (y > 0) VerticalState.AIR else VerticalState.GROUND
     }
 }
