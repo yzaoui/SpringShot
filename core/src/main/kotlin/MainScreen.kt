@@ -5,9 +5,12 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.maps.tiled.TmxMapLoader
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import ktx.app.KtxScreen
@@ -23,6 +26,12 @@ class MainScreen : KtxScreen {
     val shapeRenderer = ShapeRenderer()
     var held = false
     val target = vec2()
+    val tiledMap = TmxMapLoader().load("map.tmx")
+    val tiledMapRenderer = OrthogonalTiledMapRenderer(tiledMap)
+    val camera = OrthographicCamera(200f, 150f).apply {
+        setToOrtho(false)
+        update()
+    }
 
     init {
         Gdx.input.inputProcessor = object : InputAdapter() {
@@ -88,6 +97,10 @@ class MainScreen : KtxScreen {
 
             end()
         }
+
+        camera.update()
+        tiledMapRenderer.setView(camera)
+        tiledMapRenderer.render()
 
         if (held) with (shapeRenderer) {
             begin(ShapeRenderer.ShapeType.Line)
