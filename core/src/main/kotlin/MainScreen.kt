@@ -9,12 +9,16 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.maps.MapObjects
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import ktx.app.KtxScreen
+import ktx.math.plus
+import ktx.math.plusAssign
 import ktx.math.vec2
+import kotlin.math.absoluteValue
 
 private const val TIMESTEP: Float = .01f
 
@@ -26,8 +30,9 @@ class MainScreen : KtxScreen {
     val shapeRenderer = ShapeRenderer()
     var held = false
     val target = vec2()
-    val tiledMap = TmxMapLoader().load("map.tmx")
+    val tiledMap = TmxMapLoader().load("map.tmx")!!
     val tiledMapRenderer = OrthogonalTiledMapRenderer(tiledMap)
+    val collisionObjects: MapObjects = tiledMap.layers["collision"]!!.objects
     val camera = OrthographicCamera(200f, 150f).apply {
         setToOrtho(false)
         update()
@@ -93,7 +98,7 @@ class MainScreen : KtxScreen {
         with (batch) {
             begin()
 
-            draw(img, char.x, char.y)
+            draw(img, char.pos.x, char.pos.y)
 
             end()
         }
@@ -105,13 +110,46 @@ class MainScreen : KtxScreen {
         if (held) with (shapeRenderer) {
             begin(ShapeRenderer.ShapeType.Line)
             color = Color.FIREBRICK
-            curve(char.x + (char.width / 2), char.y + (char.height / 2), char.x + 100f, char.y + 100f, char.x + 200f, char.y + 200f, target.x, 0f, 100)
+            curve(char.pos.x + (char.width / 2), char.pos.y + (char.height / 2), char.pos.x + 100f, char.pos.y + 100f, char.pos.x + 200f, char.pos.y + 200f, target.x, 0f, 100)
             end()
         }
     }
 
     fun update() {
-        char.step()
+        // Desired position
+        with (char) {
+            preStep(GRAVITY)
+
+            if (vel.x != 0f)
+                println()
+            val newPos = pos + vel
+
+            collisionObjects.forEach {
+                val block = Rectangle(
+                    it.properties["x"] as Float,
+                    it.properties["y"] as Float,
+                    it.properties["width"] as Float,
+                    it.properties["height"] as Float
+                )
+                val obstacleDisplacement = Rectangle(newPos.x, newPos.y, width, height).intersectingVector2(block)
+
+                if (obstacleDisplacement.len2() > 0) {
+                    println("id: " + it.properties["id"] + ", " + obstacleDisplacement)
+                    if (it.properties["id"] == 20 || it.properties["id"] == 19)
+                        println()
+                }
+
+                newPos += obstacleDisplacement
+
+                if (obstacleDisplacement.y > 0) {
+                    vel.y = 0f
+                    verticalState = VerticalState.GROUND
+                }
+            }
+
+            pos.x = newPos.x
+            pos.y = newPos.y
+        }
     }
 
     override fun dispose() {
@@ -138,11 +176,19 @@ enum class Facing {
 
 private val GRAVITY = vec2(0f, -0.3f)
 
-class Character : Rectangle(100f, 100f, 32f, 32f) {
+typealias Position = Vector2
+typealias Velocity = Vector2
+typealias Acceleration = Vector2
+
+class Character {
     private var horizontalState = HorizontalState.IDLE
     private var facing = Facing.RIGHT
-    private val vel = vec2(3f, 0f)
-    private var verticalState = VerticalState.GROUND
+    val width = 32f
+    val height = 32f
+    val pos: Position = vec2(64f, 96f)
+    val vel: Velocity = vec2(0f, 0f)
+    val X_SPEED = 3f
+    var verticalState = VerticalState.AIR
 
     fun pressLeft() {
         if (horizontalState == HorizontalState.MOVING && facing == Facing.RIGHT) horizontalState = HorizontalState.MOVING_CANCELLED
@@ -176,27 +222,52 @@ class Character : Rectangle(100f, 100f, 32f, 32f) {
 
     fun jump() {
         if (verticalState == VerticalState.GROUND) {
-            vel.y += 10f
+            vel.y = 10f
         }
     }
 
-    fun step() {
-        vel.add(GRAVITY)
+    fun preStep(acceleration: Acceleration) {
+        vel += acceleration
+
+        if (vel.y != 0f) verticalState = VerticalState.AIR
 
         if (horizontalState == HorizontalState.MOVING) {
-            x += when(facing) {
-                Facing.LEFT -> -vel.x
-                Facing.RIGHT -> vel.x
+            pos.x += when(facing) {
+                Facing.LEFT -> -X_SPEED
+                Facing.RIGHT -> +X_SPEED
             }
         }
+    }
+}
 
-        if (y + vel.y <= 0) {
-            y = 0f
-            vel.y = 0f
+/**
+ * Returns a vector indicating how much [this] must be displaced to exit [other].
+ */
+fun Rectangle.intersectingVector2(other: Rectangle): Vector2 {
+    var xDisp = 0f
+    var yDisp = 0f
+
+    // Get the displacement between both mid-points
+    val dx = (this.x + (this.width / 2)) - (other.x + (other.width / 2))
+    val dy = (this.y + (this.height / 2)) - (other.y + (other.height / 2))
+
+    // The distance between both mid-points if the rectangles are just touching
+    val xTouchingMidpointDistance = (this.width + other.width) / 2
+    val yTouchingMidpointDistance = (this.height + other.height) / 2
+
+    if (dx.absoluteValue < xTouchingMidpointDistance && dy.absoluteValue < yTouchingMidpointDistance) {
+        xDisp = if (dx >= 0) {
+            other.x + other.width - this.x
         } else {
-            y += vel.y
+            other.x - (this.x + this.width)
         }
 
-        verticalState = if (y > 0) VerticalState.AIR else VerticalState.GROUND
+        yDisp = if (dy >= 0) {
+             other.y + other.height - this.y
+        } else {
+            other.y - (this.y + this.height)
+        }
     }
+
+    return if (xDisp.absoluteValue > yDisp.absoluteValue) vec2(0f, yDisp) else vec2(xDisp, 0f)
 }
