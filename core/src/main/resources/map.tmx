@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextobjectid="42">
- <tileset firstgid="1" source="stuff.tsx"/>
+<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextobjectid="43">
+ <tileset firstgid="1" source="main.tsx"/>
  <layer name="foreground" width="100" height="100">
   <data encoding="base64" compression="zlib">
-   eJzt0zEKwDAMBEHp/592k8oETArbF5gBfUDLVQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8Qz9HBj2y6JGlS5MkWmToso0kemSZe2hylxZ3ve1Bj3NW/9djr6//12qvATmeAEg=
+   eJzt1UEKwDAIBMAk/390L8lFUkoOrRZmYD/gorYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8A99hhrGDDXoo5bVh5tVg/2oYf1xfdQwQsgV+/A/ctmPXD1EH996mr8+3nU6/93/uAvnLlmxAHY=
   </data>
  </layer>
  <objectgroup name="collision">
-  <object id="0" x="0" y="3168" width="32" height="32"/>
+  <object id="42" x="0" y="3168" width="32" height="32"/>
   <object id="1" x="32" y="3168" width="32" height="32"/>
   <object id="2" x="64" y="3168" width="32" height="32"/>
   <object id="3" x="96" y="3168" width="32" height="32"/>
