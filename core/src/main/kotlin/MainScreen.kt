@@ -48,6 +48,48 @@ class MainScreen : KtxScreen {
 
     val staticBlockExists: MutableSet<Pair<Int, Int>> = mutableSetOf()
 
+    val inputProcessor = object : InputAdapter() {
+        override fun keyDown(keycode: Int): Boolean {
+            when (keycode) {
+                Input.Keys.LEFT, Input.Keys.A -> char.pressLeft()
+                Input.Keys.RIGHT, Input.Keys.D -> char.pressRight()
+                Input.Keys.UP, Input.Keys.W -> char.jump()
+                else -> return super.keyDown(keycode)
+            }
+
+            return true
+        }
+
+        override fun keyUp(keycode: Int): Boolean {
+            when (keycode) {
+                Input.Keys.LEFT, Input.Keys.A -> char.releaseLeft()
+                Input.Keys.RIGHT, Input.Keys.D -> char.releaseRight()
+                else -> return super.keyUp(keycode)
+            }
+
+            return true
+        }
+
+        override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+            held = true
+            target.set(screenX.toFloat(), screenY.toFloat())
+
+            return true
+        }
+
+        override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
+            target.set(screenX.toFloat(), screenY.toFloat())
+
+            return true
+        }
+
+        override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+            held = false
+
+            return true
+        }
+    }
+
     init {
         tiledMap.layers["collision"].objects.forEach {
             it as RectangleMapObject
@@ -56,47 +98,7 @@ class MainScreen : KtxScreen {
     }
 
     override fun show() {
-        Gdx.input.inputProcessor = object : InputAdapter() {
-            override fun keyDown(keycode: Int): Boolean {
-                when (keycode) {
-                    Input.Keys.LEFT, Input.Keys.A -> char.pressLeft()
-                    Input.Keys.RIGHT, Input.Keys.D -> char.pressRight()
-                    Input.Keys.UP, Input.Keys.W -> char.jump()
-                    else -> return super.keyDown(keycode)
-                }
-
-                return true
-            }
-
-            override fun keyUp(keycode: Int): Boolean {
-                when (keycode) {
-                    Input.Keys.LEFT, Input.Keys.A -> char.releaseLeft()
-                    Input.Keys.RIGHT, Input.Keys.D -> char.releaseRight()
-                    else -> return super.keyUp(keycode)
-                }
-
-                return true
-            }
-
-            override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-                held = true
-                target.set(screenX.toFloat(), screenY.toFloat())
-
-                return true
-            }
-
-            override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-                target.set(screenX.toFloat(), screenY.toFloat())
-
-                return true
-            }
-
-            override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-                held = false
-
-                return true
-            }
-        }
+        Gdx.input.inputProcessor = inputProcessor
     }
 
     override fun render(delta: Float) {
