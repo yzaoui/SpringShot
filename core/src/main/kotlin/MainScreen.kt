@@ -120,31 +120,43 @@ class MainScreen : KtxScreen {
         with (char) {
             preStep(GRAVITY)
 
-            if (vel.x != 0f)
-                println()
             val newPos = pos + vel
 
-            collisionObjects.forEach {
-                val block = Rectangle(
-                    it.properties["x"] as Float,
-                    it.properties["y"] as Float,
-                    it.properties["width"] as Float,
-                    it.properties["height"] as Float
-                )
-                val obstacleDisplacement = Rectangle(newPos.x, newPos.y, width, height).intersectingVector2(block)
+            for (block in collisionObjects) {
+                val x = block.properties["x"] as Float
+                val y = block.properties["y"] as Float
+                val width = block.properties["width"] as Float
+                val height = block.properties["height"] as Float
 
-                if (obstacleDisplacement.len2() > 0) {
-                    println("id: " + it.properties["id"] + ", " + obstacleDisplacement)
-                    if (it.properties["id"] == 20 || it.properties["id"] == 19)
-                        println()
+                // if x don't even overlap, skip
+                if (newPos.x > x + width || newPos.x + char.width < x) continue
+
+                val obstacleDisplacement = Rectangle(newPos.x, newPos.y, char.width, char.height).intersectingVector2(Rectangle(x, y, width, height))
+
+                if (obstacleDisplacement.x.absoluteValue < obstacleDisplacement.y.absoluteValue) {
+                    newPos.x += obstacleDisplacement.x
                 }
+            }
 
-                newPos += obstacleDisplacement
+            for (block in collisionObjects) {
+                val x = block.properties["x"] as Float
+                val y = block.properties["y"] as Float
+                val width = block.properties["width"] as Float
+                val height = block.properties["height"] as Float
 
-                if (obstacleDisplacement.y > 0) {
-                    vel.y = 0f
-                    verticalState = VerticalState.GROUND
+                // if y don't even overlap, skip
+                if (newPos.y > y + height || newPos.y + char.height < y) continue
+
+                val obstacleDisplacement = Rectangle(newPos.x, newPos.y, char.width, char.height).intersectingVector2(Rectangle(x, y, width, height))
+
+                if (obstacleDisplacement.y.absoluteValue < obstacleDisplacement.x.absoluteValue) {
+                    newPos.y += obstacleDisplacement.y
                 }
+            }
+
+            if (pos.y == newPos.y) {
+                vel.y = 0f
+                verticalState = VerticalState.GROUND
             }
 
             pos.x = newPos.x
@@ -244,8 +256,7 @@ class Character {
  * Returns a vector indicating how much [this] must be displaced to exit [other].
  */
 fun Rectangle.intersectingVector2(other: Rectangle): Vector2 {
-    var xDisp = 0f
-    var yDisp = 0f
+    val displacement = vec2()
 
     // Get the displacement between both mid-points
     val dx = (this.x + (this.width / 2)) - (other.x + (other.width / 2))
@@ -256,18 +267,18 @@ fun Rectangle.intersectingVector2(other: Rectangle): Vector2 {
     val yTouchingMidpointDistance = (this.height + other.height) / 2
 
     if (dx.absoluteValue < xTouchingMidpointDistance && dy.absoluteValue < yTouchingMidpointDistance) {
-        xDisp = if (dx >= 0) {
+        displacement.x = if (dx >= 0) {
             other.x + other.width - this.x
         } else {
             other.x - (this.x + this.width)
         }
 
-        yDisp = if (dy >= 0) {
+        displacement.y = if (dy >= 0) {
              other.y + other.height - this.y
         } else {
             other.y - (this.y + this.height)
         }
     }
 
-    return if (xDisp.absoluteValue > yDisp.absoluteValue) vec2(0f, yDisp) else vec2(xDisp, 0f)
+    return displacement
 }
