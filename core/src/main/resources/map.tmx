@@ -3,7 +3,7 @@
  <tileset firstgid="1" source="main.tsx"/>
  <layer name="foreground" width="32" height="27">
   <data encoding="base64" compression="zlib">
-   eJztkzEKADAIA43/f3QXu0hBxEIozUFwPCRqJoQQQohXQISFR373szpg7b/vjuX3FLa/0z9s/rfd/af3iZTKjzRv+yq/p3nbd+p/kgXsYACJ
+   eJztk8EKACAIQ53//9Fd6jKMiIIR7cHwIPEQLcIYY4wxr4AeFdnzu1+1A9X84+5U/qSo/Tv7R5z/2935T+8TlJUfVG/7Vv6kettX7Z/fY9Kr0gDsuACL
   </data>
  </layer>
  <objectgroup name="collision">

@@ -18,6 +18,7 @@ import ktx.app.KtxScreen
 import ktx.math.plus
 import ktx.math.plusAssign
 import ktx.math.vec2
+import ktx.math.vec3
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 import kotlin.math.sign
@@ -79,13 +80,13 @@ class MainScreen : KtxScreen {
 
             override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
                 held = true
-                target.set(screenX.toFloat(), Gdx.graphics.height - screenY.toFloat())
+                target.set(screenX.toFloat(), screenY.toFloat())
 
                 return true
             }
 
             override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-                target.set(screenX.toFloat(), Gdx.graphics.height - screenY.toFloat())
+                target.set(screenX.toFloat(), screenY.toFloat())
 
                 return true
             }
@@ -120,6 +121,7 @@ class MainScreen : KtxScreen {
             begin()
 
             projectionMatrix = camera.combined
+
             draw(img, char.pos.x, char.pos.y)
 
             end()
@@ -129,8 +131,12 @@ class MainScreen : KtxScreen {
 
         if (held) with (shapeRenderer) {
             begin(ShapeRenderer.ShapeType.Line)
+
+            projectionMatrix = camera.combined
             color = Color.FIREBRICK
-            curve(char.pos.x + (char.width / 2), char.pos.y + (char.height / 2), char.pos.x + 100f, char.pos.y + 100f, char.pos.x + 200f, char.pos.y + 200f, target.x, 0f, 100)
+
+            line(char.pos.run { vec2(x + char.width / 2, y + char.height / 2) }, camera.unproject(vec3(target)).run { vec2(x, y) })
+
             end()
         }
     }
@@ -287,7 +293,7 @@ class Character {
 }
 
 /**
- * Returns a vector indicating how much [this] must be displaced to exit [other].
+ * Returns a vector indicating the shortest path [this] must take to exit one of [other]'s corners.
  */
 fun Rectangle.intersectingVector2(other: Rectangle): Vector2 {
     val displacement = vec2()
