@@ -36,8 +36,8 @@ class MainScreen : KtxScreen {
     val mapWidth: Int = tiledMap.properties["width"] as Int
     val mapHeight: Int = tiledMap.properties["height"] as Int
     val tiledMapRenderer = OrthogonalTiledMapRenderer(tiledMap)
-    val camera = OrthographicCamera(200f, 150f).apply {
-        setToOrtho(false)
+    val camera = OrthographicCamera().apply {
+        setToOrtho(false, 640f, 480f)
         update()
     }
 
@@ -102,6 +102,11 @@ class MainScreen : KtxScreen {
             accumulator -= TIMESTEP
         }
 
+        camera.run {
+            position.set(char.pos.x + char.width / 2, char.pos.y + char.height / 2, 0f)
+            update()
+        }
+
         with (Gdx.gl) {
             glClearColor(173/255f, 216/255f, 230/255f, 1f)
             glClear(GL20.GL_COLOR_BUFFER_BIT)
@@ -110,12 +115,11 @@ class MainScreen : KtxScreen {
         with (batch) {
             begin()
 
+            projectionMatrix = camera.combined
             draw(img, char.pos.x, char.pos.y)
 
             end()
         }
-
-        camera.update()
         tiledMapRenderer.setView(camera)
         tiledMapRenderer.render()
 
@@ -136,7 +140,7 @@ class MainScreen : KtxScreen {
 
 
             for (block in staticBlockExists) {
-                val charRect = Rectangle(newPos.x, newPos.y, char.width, char.height)
+                val charRect = Rectangle(newPos.x, newPos.y, char.width.toFloat(), char.height.toFloat())
                 val blockRect = Rectangle(block.first * 32f, block.second * 32f, 32f, 32f)
 
                 // if x don't even overlap, skip
@@ -153,7 +157,7 @@ class MainScreen : KtxScreen {
             }
 
             for (block in staticBlockExists) {
-                val charRect = Rectangle(newPos.x, newPos.y, char.width, char.height)
+                val charRect = Rectangle(newPos.x, newPos.y, char.width.toFloat(), char.height.toFloat())
                 val blockRect = Rectangle(block.first * 32f, block.second * 32f, 32f, 32f)
 
                 // if y don't even overlap, skip
@@ -210,8 +214,8 @@ typealias Acceleration = Vector2
 class Character {
     private var horizontalState = HorizontalState.IDLE
     private var facing = Facing.RIGHT
-    val width = 32f
-    val height = 32f
+    val width = 32
+    val height = 32
     val pos: Position = vec2(64f, 96f)
     val vel: Velocity = vec2(0f, 0f)
     val X_SPEED = 3f

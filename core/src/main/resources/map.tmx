@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextobjectid="43">
+<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextobjectid="56">
  <tileset firstgid="1" source="main.tsx"/>
  <layer name="foreground" width="100" height="100">
   <data encoding="base64" compression="zlib">
-   eJzt1UEKwDAIBMAk/390L8lFUkoOrRZmYD/gorYGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8A99hhrGDDXoo5bVh5tVg/2oYf1xfdQwQsgV+/A/ctmPXD1EH996mr8+3nU6/93/uAvnLlmxAHY=
+   eJzt1kEKwCAMBED1/4/uRQ8NhSK1NYUZ2A9kibEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgH+oPeTQeshBH7mMPrxZOdiPHMYd10cOLYS9Yh8z96MW/+TVZvfD7NeqId6rb93NXx/vmp3/1f14Es4Of/UAgw==
   </data>
  </layer>
  <objectgroup name="collision">
@@ -47,5 +47,18 @@
   <object id="39" x="640" y="3168" width="32" height="32"/>
   <object id="40" x="672" y="3168" width="32" height="32"/>
   <object id="41" x="704" y="3168" width="32" height="32"/>
+  <object id="43" x="736" y="3168" width="32" height="32"/>
+  <object id="44" x="768" y="3168" width="32" height="32"/>
+  <object id="45" x="800" y="3168" width="32" height="32"/>
+  <object id="46" x="832" y="3168" width="32" height="32"/>
+  <object id="47" x="864" y="3168" width="32" height="32"/>
+  <object id="48" x="896" y="3168" width="32" height="32"/>
+  <object id="49" x="928" y="3168" width="32" height="32"/>
+  <object id="50" x="960" y="3168" width="32" height="32"/>
+  <object id="51" x="992" y="3168" width="32" height="32"/>
+  <object id="52" x="768" y="3072" width="32" height="32"/>
+  <object id="53" x="864" y="3040" width="32" height="32"/>
+  <object id="54" x="896" y="3040" width="32" height="32"/>
+  <object id="55" x="928" y="3040" width="32" height="32"/>
  </objectgroup>
 </map>
