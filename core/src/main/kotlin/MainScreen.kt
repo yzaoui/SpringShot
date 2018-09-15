@@ -198,7 +198,7 @@ class MainScreen : KtxScreen {
 
             if (pos.y == newPos.y) {
                 vel.y = 0f
-                verticalState = VerticalState.GROUND
+                verticalState = VerticalState.STATIC
             }
 
             pos.x = newPos.x
@@ -213,14 +213,14 @@ class MainScreen : KtxScreen {
 }
 
 enum class HorizontalState {
-    IDLE,
+    STATIC,
     MOVING,
     MOVING_CANCELLED
 }
 
 enum class VerticalState {
-    GROUND,
-    AIR
+    STATIC,
+    MOVING
 }
 
 enum class Facing {
@@ -235,24 +235,25 @@ typealias Velocity = Vector2
 typealias Acceleration = Vector2
 
 class Character {
-    private var horizontalState = HorizontalState.IDLE
+    private var horizontalState = HorizontalState.STATIC
     private var facing = Facing.RIGHT
     val width = 32
     val height = 32
     val pos: Position = vec2(64f, 96f)
     val vel: Velocity = vec2(0f, 0f)
     val X_SPEED = 3f
-    var verticalState = VerticalState.AIR
+    val Y_SPEED = 10f
+    var verticalState = VerticalState.MOVING
 
     fun pressLeft() {
         if (horizontalState == HorizontalState.MOVING && facing == Facing.RIGHT) horizontalState = HorizontalState.MOVING_CANCELLED
-        else if (horizontalState == HorizontalState.IDLE) horizontalState = HorizontalState.MOVING
+        else if (horizontalState == HorizontalState.STATIC) horizontalState = HorizontalState.MOVING
         facing = Facing.LEFT
     }
 
     fun releaseLeft() {
         if (horizontalState == HorizontalState.MOVING) {
-            horizontalState = HorizontalState.IDLE
+            horizontalState = HorizontalState.STATIC
         } else if (horizontalState == HorizontalState.MOVING_CANCELLED) {
             horizontalState = HorizontalState.MOVING
             facing = Facing.RIGHT
@@ -261,13 +262,13 @@ class Character {
 
     fun pressRight() {
         if (horizontalState == HorizontalState.MOVING && facing == Facing.LEFT) horizontalState = HorizontalState.MOVING_CANCELLED
-        else if (horizontalState == HorizontalState.IDLE) horizontalState = HorizontalState.MOVING
+        else if (horizontalState == HorizontalState.STATIC) horizontalState = HorizontalState.MOVING
         facing = Facing.RIGHT
     }
 
     fun releaseRight() {
         if (horizontalState == HorizontalState.MOVING) {
-            horizontalState = HorizontalState.IDLE
+            horizontalState = HorizontalState.STATIC
         } else if (horizontalState == HorizontalState.MOVING_CANCELLED) {
             horizontalState = HorizontalState.MOVING
             facing = Facing.LEFT
@@ -275,15 +276,15 @@ class Character {
     }
 
     fun jump() {
-        if (verticalState == VerticalState.GROUND) {
-            vel.y = 10f
+        if (verticalState == VerticalState.STATIC) {
+            vel.y = Y_SPEED
         }
     }
 
     fun preStep(acceleration: Acceleration) {
         vel += acceleration
 
-        if (vel.y != 0f) verticalState = VerticalState.AIR
+        if (vel.y != 0f) verticalState = VerticalState.MOVING
 
         if (horizontalState == HorizontalState.MOVING) {
             pos.x += when(facing) {
@@ -323,11 +324,4 @@ fun Rectangle.intersectingVector2(other: Rectangle): Vector2 {
     }
 
     return displacement
-}
-
-fun checkAABBvAABBCollision(a: Rectangle, b: Rectangle): Boolean {
-    return a.x < b.x + b.width
-            && a.y < b.y + b.height
-            && a.x + a.width > b.x
-            && a.y + a.height > b.y
 }
