@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextobjectid="21">
+<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" infinite="0" nextobjectid="42">
  <tileset firstgid="1" source="stuff.tsx"/>
  <layer name="foreground" width="100" height="100">
   <data encoding="base64" compression="zlib">
-   eJzt0bENACAMA0Gy/9I0tJEoUHBxJ3kB/1oAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALxQZ2TQI4seWfTIokcWPf6qZszo/tdjxu3/eszYYVsAKw==
+   eJzt0zEKwDAMBEHp/592k8oETArbF5gBfUDLVQEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8Qz9HBj2y6JGlS5MkWmToso0kemSZe2hylxZ3ve1Bj3NW/9djr6//12qvATmeAEg=
   </data>
  </layer>
  <objectgroup name="collision">
@@ -11,22 +11,41 @@
   <object id="1" x="32" y="3168" width="32" height="32"/>
   <object id="2" x="64" y="3168" width="32" height="32"/>
   <object id="3" x="96" y="3168" width="32" height="32"/>
-  <object id="4" x="128" y="3168" width="32" height="32"/>
-  <object id="5" x="192" y="3136" width="32" height="32"/>
-  <object id="6" x="224" y="3136" width="32" height="32"/>
-  <object id="7" x="160" y="3136" width="32" height="32"/>
-  <object id="8" x="128" y="3136" width="32" height="32"/>
-  <object id="9" x="256" y="3136" width="32" height="32"/>
-  <object id="10" x="256" y="3104" width="32" height="32"/>
-  <object id="11" x="320" y="3104" width="32" height="32"/>
-  <object id="12" x="288" y="3104" width="32" height="32"/>
-  <object id="13" x="352" y="3104" width="32" height="32"/>
-  <object id="14" x="384" y="3072" width="32" height="32"/>
-  <object id="15" x="384" y="3104" width="32" height="32"/>
-  <object id="16" x="384" y="3008" width="32" height="32"/>
-  <object id="17" x="384" y="3040" width="32" height="32"/>
-  <object id="18" x="384" y="2976" width="32" height="32"/>
-  <object id="19" x="384" y="2944" width="32" height="32"/>
-  <object id="20" x="384" y="2912" width="32" height="32"/>
+  <object id="4" x="192" y="3136" width="32" height="32"/>
+  <object id="5" x="224" y="3136" width="32" height="32"/>
+  <object id="6" x="160" y="3136" width="32" height="32"/>
+  <object id="7" x="128" y="3136" width="32" height="32"/>
+  <object id="8" x="256" y="3104" width="32" height="32"/>
+  <object id="9" x="320" y="3104" width="32" height="32"/>
+  <object id="10" x="288" y="3104" width="32" height="32"/>
+  <object id="11" x="352" y="3104" width="32" height="32"/>
+  <object id="12" x="384" y="3072" width="32" height="32"/>
+  <object id="13" x="384" y="3008" width="32" height="32"/>
+  <object id="14" x="384" y="3040" width="32" height="32"/>
+  <object id="15" x="384" y="2976" width="32" height="32"/>
+  <object id="16" x="416" y="2976" width="32" height="32"/>
+  <object id="17" x="448" y="2944" width="32" height="32"/>
+  <object id="18" x="448" y="2912" width="32" height="32"/>
+  <object id="19" x="448" y="2880" width="32" height="32"/>
+  <object id="20" x="448" y="2848" width="32" height="32"/>
+  <object id="21" x="448" y="2816" width="32" height="32"/>
+  <object id="24" x="480" y="2816" width="32" height="32"/>
+  <object id="25" x="480" y="2848" width="32" height="32"/>
+  <object id="26" x="480" y="2880" width="32" height="32"/>
+  <object id="27" x="512" y="2912" width="32" height="32"/>
+  <object id="28" x="480" y="2944" width="32" height="32"/>
+  <object id="29" x="480" y="2976" width="32" height="32"/>
+  <object id="30" x="480" y="3008" width="32" height="32"/>
+  <object id="31" x="512" y="3040" width="32" height="32"/>
+  <object id="32" x="480" y="3072" width="32" height="32"/>
+  <object id="33" x="480" y="3104" width="32" height="32"/>
+  <object id="34" x="480" y="3136" width="32" height="32"/>
+  <object id="35" x="512" y="3168" width="32" height="32"/>
+  <object id="36" x="544" y="3168" width="32" height="32"/>
+  <object id="37" x="576" y="3168" width="32" height="32"/>
+  <object id="38" x="608" y="3168" width="32" height="32"/>
+  <object id="39" x="640" y="3168" width="32" height="32"/>
+  <object id="40" x="672" y="3168" width="32" height="32"/>
+  <object id="41" x="704" y="3168" width="32" height="32"/>
  </objectgroup>
 </map>

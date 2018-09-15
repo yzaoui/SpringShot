@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
-import com.badlogic.gdx.maps.MapObjects
+import com.badlogic.gdx.maps.objects.RectangleMapObject
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Rectangle
@@ -19,6 +19,8 @@ import ktx.math.plus
 import ktx.math.plusAssign
 import ktx.math.vec2
 import kotlin.math.absoluteValue
+import kotlin.math.roundToInt
+import kotlin.math.sign
 
 private const val TIMESTEP: Float = .01f
 
@@ -31,14 +33,24 @@ class MainScreen : KtxScreen {
     var held = false
     val target = vec2()
     val tiledMap = TmxMapLoader().load("map.tmx")!!
+    val mapWidth: Int = tiledMap.properties["width"] as Int
+    val mapHeight: Int = tiledMap.properties["height"] as Int
     val tiledMapRenderer = OrthogonalTiledMapRenderer(tiledMap)
-    val collisionObjects: MapObjects = tiledMap.layers["collision"]!!.objects
     val camera = OrthographicCamera(200f, 150f).apply {
         setToOrtho(false)
         update()
     }
 
+    val staticBlockExists: MutableSet<Pair<Int, Int>> = mutableSetOf()
+
     init {
+        tiledMap.layers["collision"].objects.forEach {
+            it as RectangleMapObject
+            staticBlockExists.add(it.rectangle.x.roundToInt() / 32 to it.rectangle.y.roundToInt() / 32)
+        }
+    }
+
+    override fun show() {
         Gdx.input.inputProcessor = object : InputAdapter() {
             override fun keyDown(keycode: Int): Boolean {
                 when (keycode) {
@@ -91,7 +103,7 @@ class MainScreen : KtxScreen {
         }
 
         with (Gdx.gl) {
-            glClearColor(0f, 0f, 0f, 1f)
+            glClearColor(173/255f, 216/255f, 230/255f, 1f)
             glClear(GL20.GL_COLOR_BUFFER_BIT)
         }
 
@@ -122,35 +134,38 @@ class MainScreen : KtxScreen {
 
             val newPos = pos + vel
 
-            for (block in collisionObjects) {
-                val x = block.properties["x"] as Float
-                val y = block.properties["y"] as Float
-                val width = block.properties["width"] as Float
-                val height = block.properties["height"] as Float
+
+            for (block in staticBlockExists) {
+                val charRect = Rectangle(newPos.x, newPos.y, char.width, char.height)
+                val blockRect = Rectangle(block.first * 32f, block.second * 32f, 32f, 32f)
 
                 // if x don't even overlap, skip
-                if (newPos.x > x + width || newPos.x + char.width < x) continue
+                if (charRect.x > blockRect.x + blockRect.width || charRect.x + charRect.width < blockRect.x) continue
 
-                val obstacleDisplacement = Rectangle(newPos.x, newPos.y, char.width, char.height).intersectingVector2(Rectangle(x, y, width, height))
+                val disp = charRect.intersectingVector2(blockRect)
 
-                if (obstacleDisplacement.x.absoluteValue < obstacleDisplacement.y.absoluteValue) {
-                    newPos.x += obstacleDisplacement.x
+                if (disp.x.absoluteValue < disp.y.absoluteValue) {
+                    if (disp.x.sign == 1f && !staticBlockExists.contains(block.first + 1 to block.second)
+                        || disp.x.sign == -1f && !staticBlockExists.contains(block.first - 1 to block.second)) {
+                        newPos.x += disp.x
+                    }
                 }
             }
 
-            for (block in collisionObjects) {
-                val x = block.properties["x"] as Float
-                val y = block.properties["y"] as Float
-                val width = block.properties["width"] as Float
-                val height = block.properties["height"] as Float
+            for (block in staticBlockExists) {
+                val charRect = Rectangle(newPos.x, newPos.y, char.width, char.height)
+                val blockRect = Rectangle(block.first * 32f, block.second * 32f, 32f, 32f)
 
                 // if y don't even overlap, skip
-                if (newPos.y > y + height || newPos.y + char.height < y) continue
+                if (charRect.y > blockRect.y + blockRect.height || charRect.y + charRect.height < blockRect.y) continue
 
-                val obstacleDisplacement = Rectangle(newPos.x, newPos.y, char.width, char.height).intersectingVector2(Rectangle(x, y, width, height))
+                val disp = charRect.intersectingVector2(blockRect)
 
-                if (obstacleDisplacement.y.absoluteValue < obstacleDisplacement.x.absoluteValue) {
-                    newPos.y += obstacleDisplacement.y
+                if (disp.y.absoluteValue < disp.x.absoluteValue) {
+                    if (disp.y.sign == 1f && !staticBlockExists.contains(block.first to block.second + 1)
+                        || disp.y.sign == -1f && !staticBlockExists.contains(block.first to block.second - 1)) {
+                        newPos.y += disp.y
+                    }
                 }
             }
 
@@ -281,4 +296,11 @@ fun Rectangle.intersectingVector2(other: Rectangle): Vector2 {
     }
 
     return displacement
+}
+
+fun checkAABBvAABBCollision(a: Rectangle, b: Rectangle): Boolean {
+    return a.x < b.x + b.width
+            && a.y < b.y + b.height
+            && a.x + a.width > b.x
+            && a.y + a.height > b.y
 }
