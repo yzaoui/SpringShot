@@ -33,8 +33,12 @@ class MainScreen : KtxScreen {
     var held = false
     val target = vec2()
     val tiledMap = TmxMapLoader().load("map.tmx")!!
-    val mapWidth: Int = tiledMap.properties["width"] as Int
-    val mapHeight: Int = tiledMap.properties["height"] as Int
+    val worldBounds = Rectangle(
+        0f,
+        0f,
+        (tiledMap.properties["width"] as Int) * 32f,
+        (tiledMap.properties["height"] as Int) * 32f
+    )
     val tiledMapRenderer = OrthogonalTiledMapRenderer(tiledMap)
     val camera = OrthographicCamera().apply {
         setToOrtho(false, 640f, 480f)
@@ -138,7 +142,6 @@ class MainScreen : KtxScreen {
 
             val newPos = pos + vel
 
-
             for (block in staticBlockExists) {
                 val charRect = Rectangle(newPos.x, newPos.y, char.width.toFloat(), char.height.toFloat())
                 val blockRect = Rectangle(block.first * 32f, block.second * 32f, 32f, 32f)
@@ -171,6 +174,18 @@ class MainScreen : KtxScreen {
                         newPos.y += disp.y
                     }
                 }
+            }
+
+            if (newPos.x < worldBounds.x) {
+                newPos.x = 0f
+            } else if (newPos.x + char.width > worldBounds.x + worldBounds.width) {
+                newPos.x = worldBounds.x + worldBounds.width - char.width
+            }
+
+            if (newPos.y < worldBounds.y) {
+                newPos.y = 0f
+            } else if (newPos.y + char.height > worldBounds.y + worldBounds.height) {
+                newPos.y = worldBounds.y + worldBounds.height - char.height
             }
 
             if (pos.y == newPos.y) {
