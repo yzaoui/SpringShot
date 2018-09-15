@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.GL20
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
 import com.badlogic.gdx.maps.objects.RectangleMapObject
 import com.badlogic.gdx.maps.tiled.TmxMapLoader
@@ -26,8 +27,9 @@ import kotlin.math.sign
 private const val TIMESTEP: Float = .01f
 
 class MainScreen : KtxScreen {
-    val batch = SpriteBatch()
-    val img = Texture("player.png")
+    val spriteBatch = SpriteBatch()
+    val playerTexture = Texture("player.png")
+    val playerTextureRegions = TextureRegion.split(playerTexture, 32, 32)
     val char = Character()
     var accumulator = 0f
     val shapeRenderer = ShapeRenderer()
@@ -119,15 +121,18 @@ class MainScreen : KtxScreen {
             glClear(GL20.GL_COLOR_BUFFER_BIT)
         }
 
-        with (batch) {
+        with (spriteBatch) {
             begin()
 
             projectionMatrix = camera.combined
 
-            draw(img, char.pos.x, char.pos.y)
+            val coord = textureRegionCoordinatesFromCharacter(char)
+
+            draw(playerTextureRegions[coord.second][coord.first], char.pos.x, char.pos.y)
 
             end()
         }
+
         tiledMapRenderer.setView(camera)
         tiledMapRenderer.render()
 
@@ -207,8 +212,9 @@ class MainScreen : KtxScreen {
     }
 
     override fun dispose() {
-        batch.dispose()
-        img.dispose()
+        spriteBatch.dispose()
+        playerTexture.dispose()
+        tiledMap.dispose()
     }
 }
 
@@ -234,8 +240,17 @@ typealias Position = Vector2
 typealias Velocity = Vector2
 typealias Acceleration = Vector2
 
+fun textureRegionCoordinatesFromCharacter(char: Character): Pair<Int, Int> {
+    return if (char.verticalState == VerticalState.STATIC && (char.horizontalState == HorizontalState.STATIC || char.horizontalState == HorizontalState.MOVING_CANCELLED)) {
+        0 to 0
+    } else {
+        1 to 0
+    }
+}
+
 class Character {
-    private var horizontalState = HorizontalState.STATIC
+    var horizontalState = HorizontalState.STATIC
+    var verticalState = VerticalState.MOVING
     private var facing = Facing.RIGHT
     val width = 32
     val height = 32
@@ -243,7 +258,6 @@ class Character {
     val vel: Velocity = vec2(0f, 0f)
     val X_SPEED = 3f
     val Y_SPEED = 10f
-    var verticalState = VerticalState.MOVING
 
     fun pressLeft() {
         if (horizontalState == HorizontalState.MOVING && facing == Facing.RIGHT) horizontalState = HorizontalState.MOVING_CANCELLED
