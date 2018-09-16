@@ -25,6 +25,9 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 
 private const val TIMESTEP: Float = .01f
+private const val FLAG_CAMERA_STOP_AT_WORLD_BOUNDARIES = true
+private const val VIEWPORT_WIDTH = 640f
+private const val VIEWPORT_HEIGHT = 480f
 
 class MainScreen : KtxScreen {
     val spriteBatch = SpriteBatch()
@@ -44,7 +47,7 @@ class MainScreen : KtxScreen {
     )
     val tiledMapRenderer = OrthogonalTiledMapRenderer(tiledMap)
     val camera = OrthographicCamera().apply {
-        setToOrtho(false, 640f, 480f)
+        setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT)
         update()
     }
 
@@ -112,7 +115,17 @@ class MainScreen : KtxScreen {
         }
 
         camera.run {
-            position.set(char.pos.x + char.width / 2, char.pos.y + char.height / 2, 0f)
+            val cameraX = char.pos.x + char.width / 2
+            val cameraY = char.pos.y + char.height / 2
+            if (FLAG_CAMERA_STOP_AT_WORLD_BOUNDARIES) {
+                position.set(
+                    cameraX.coerceIn(VIEWPORT_WIDTH / 2, worldBounds.width - VIEWPORT_WIDTH / 2),
+                    cameraY.coerceIn(VIEWPORT_HEIGHT / 2, worldBounds.height - VIEWPORT_HEIGHT / 2),
+                    0f
+                )
+            } else {
+                position.set(cameraX, cameraY, 0f)
+            }
             update()
         }
 
