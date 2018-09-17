@@ -121,8 +121,8 @@ class MainScreen : KtxScreen {
         }
 
         camera.run {
-            val cameraX = player.pos.x + player.width / 2
-            val cameraY = player.pos.y + player.height / 2
+            val cameraX = player.position.x + player.width / 2
+            val cameraY = player.position.y + player.height / 2
             if (FLAG_CAMERA_STOP_AT_WORLD_BOUNDARIES) {
                 position.set(
                     cameraX.coerceIn(VIEWPORT_WIDTH / 2, worldBounds.width - VIEWPORT_WIDTH / 2),
@@ -147,7 +147,7 @@ class MainScreen : KtxScreen {
 
             val coord = textureRegionCoordinatesFromCharacter(player)
 
-            draw(playerTextureRegions[coord.second][coord.first], player.pos.x, player.pos.y)
+            draw(playerTextureRegions[coord.second][coord.first], player.position.x, player.position.y)
 
             end()
         }
@@ -161,7 +161,7 @@ class MainScreen : KtxScreen {
             projectionMatrix = camera.combined
             color = Color.FIREBRICK
 
-            line(player.pos.run { vec2(x + player.width / 2, y + player.height / 2) }, camera.unproject(vec3(target)).run { vec2(x, y) })
+            line(player.position.run { vec2(x + player.width / 2, y + player.height / 2) }, camera.unproject(vec3(target)).run { vec2(x, y) })
 
             end()
         }
@@ -172,9 +172,9 @@ class MainScreen : KtxScreen {
         with (player) {
             preStep()
 
-            vel.y += GRAVITY
+            velocity.y += GRAVITY
 
-            val newPos = pos + vel
+            val newPos = position + velocity
 
             for (block in staticBlockExists) {
                 val charRect = Rectangle(newPos.x, newPos.y, player.width.toFloat(), player.height.toFloat())
@@ -222,13 +222,13 @@ class MainScreen : KtxScreen {
                 newPos.y = worldBounds.y + worldBounds.height - player.height
             }
 
-            if (pos.y == newPos.y) {
-                vel.y = 0f
+            if (position.y == newPos.y) {
+                velocity.y = 0f
                 verticalState = VerticalState.STATIC
             }
 
-            pos.x = newPos.x
-            pos.y = newPos.y
+            position.x = newPos.x
+            position.y = newPos.y
         }
     }
 

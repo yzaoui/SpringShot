@@ -21,14 +21,14 @@ enum class VerticalState {
     MOVING
 }
 
-class Player {
+class Player : Entity() {
     var horizontalState = HorizontalState.STATIC
     var verticalState = VerticalState.MOVING
     private var facing = Facing.RIGHT
-    val width = 32
-    val height = 32
-    val pos: Position = vec2(64f, 96f)
-    val vel: Velocity = vec2(0f, 0f)
+    override val width = 32
+    override val height = 32
+    override val position: Position = vec2(64f, 96f)
+    override val velocity: Velocity = vec2(0f, 0f)
 
     fun pressLeft() {
         if (horizontalState == HorizontalState.MOVING && facing == Facing.RIGHT) horizontalState = HorizontalState.MOVING_CANCELLED
@@ -62,15 +62,15 @@ class Player {
 
     fun jump() {
         if (verticalState == VerticalState.STATIC) {
-            vel.y = Y_SPEED
+            velocity.y = Y_SPEED
         }
     }
 
     fun preStep() {
-        if (vel.y != 0f) verticalState = VerticalState.MOVING
+        if (velocity.y != 0f) verticalState = VerticalState.MOVING
 
         if (horizontalState == HorizontalState.MOVING) {
-            pos.x += when(facing) {
+            position.x += when(facing) {
                 Facing.LEFT -> -X_SPEED
                 Facing.RIGHT -> +X_SPEED
             }
