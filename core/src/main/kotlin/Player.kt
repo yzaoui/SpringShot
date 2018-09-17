@@ -1,0 +1,65 @@
+package com.bitwiserain.springshot.core
+
+import ktx.math.plusAssign
+import ktx.math.vec2
+
+class Player {
+    var horizontalState = HorizontalState.STATIC
+    var verticalState = VerticalState.MOVING
+    private var facing = Facing.RIGHT
+    val width = 32
+    val height = 32
+    val pos: Position = vec2(64f, 96f)
+    val vel: Velocity = vec2(0f, 0f)
+    val X_SPEED = 3f
+    val Y_SPEED = 10f
+
+    fun pressLeft() {
+        if (horizontalState == HorizontalState.MOVING && facing == Facing.RIGHT) horizontalState = HorizontalState.MOVING_CANCELLED
+        else if (horizontalState == HorizontalState.STATIC) horizontalState = HorizontalState.MOVING
+        facing = Facing.LEFT
+    }
+
+    fun releaseLeft() {
+        if (horizontalState == HorizontalState.MOVING) {
+            horizontalState = HorizontalState.STATIC
+        } else if (horizontalState == HorizontalState.MOVING_CANCELLED) {
+            horizontalState = HorizontalState.MOVING
+            facing = Facing.RIGHT
+        }
+    }
+
+    fun pressRight() {
+        if (horizontalState == HorizontalState.MOVING && facing == Facing.LEFT) horizontalState = HorizontalState.MOVING_CANCELLED
+        else if (horizontalState == HorizontalState.STATIC) horizontalState = HorizontalState.MOVING
+        facing = Facing.RIGHT
+    }
+
+    fun releaseRight() {
+        if (horizontalState == HorizontalState.MOVING) {
+            horizontalState = HorizontalState.STATIC
+        } else if (horizontalState == HorizontalState.MOVING_CANCELLED) {
+            horizontalState = HorizontalState.MOVING
+            facing = Facing.LEFT
+        }
+    }
+
+    fun jump() {
+        if (verticalState == VerticalState.STATIC) {
+            vel.y = Y_SPEED
+        }
+    }
+
+    fun preStep(acceleration: Acceleration) {
+        vel += acceleration
+
+        if (vel.y != 0f) verticalState = VerticalState.MOVING
+
+        if (horizontalState == HorizontalState.MOVING) {
+            pos.x += when(facing) {
+                Facing.LEFT -> -X_SPEED
+                Facing.RIGHT -> +X_SPEED
+            }
+        }
+    }
+}

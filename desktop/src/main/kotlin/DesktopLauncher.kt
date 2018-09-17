@@ -1,4 +1,4 @@
-package com.bitwiserain.desktop
+package com.bitwiserain.springshot.desktop
 
 import com.badlogic.gdx.Files
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication

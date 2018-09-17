@@ -1,4 +1,4 @@
-package com.bitwiserain.core
+package com.bitwiserain.springshot.core
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
@@ -17,7 +17,6 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import ktx.app.KtxScreen
 import ktx.math.plus
-import ktx.math.plusAssign
 import ktx.math.vec2
 import ktx.math.vec3
 import kotlin.math.absoluteValue
@@ -33,7 +32,7 @@ class MainScreen : KtxScreen {
     val spriteBatch = SpriteBatch()
     val playerTexture = Texture("player.png")
     val playerTextureRegions = TextureRegion.split(playerTexture, 32, 32)
-    val char = Character()
+    val player = Player()
     var accumulator = 0f
     val shapeRenderer = ShapeRenderer()
     var held = false
@@ -56,9 +55,9 @@ class MainScreen : KtxScreen {
     val inputProcessor = object : InputAdapter() {
         override fun keyDown(keycode: Int): Boolean {
             when (keycode) {
-                Input.Keys.LEFT, Input.Keys.A -> char.pressLeft()
-                Input.Keys.RIGHT, Input.Keys.D -> char.pressRight()
-                Input.Keys.UP, Input.Keys.W -> char.jump()
+                Input.Keys.LEFT, Input.Keys.A -> player.pressLeft()
+                Input.Keys.RIGHT, Input.Keys.D -> player.pressRight()
+                Input.Keys.UP, Input.Keys.W -> player.jump()
                 else -> return super.keyDown(keycode)
             }
 
@@ -67,8 +66,8 @@ class MainScreen : KtxScreen {
 
         override fun keyUp(keycode: Int): Boolean {
             when (keycode) {
-                Input.Keys.LEFT, Input.Keys.A -> char.releaseLeft()
-                Input.Keys.RIGHT, Input.Keys.D -> char.releaseRight()
+                Input.Keys.LEFT, Input.Keys.A -> player.releaseLeft()
+                Input.Keys.RIGHT, Input.Keys.D -> player.releaseRight()
                 else -> return super.keyUp(keycode)
             }
 
@@ -115,8 +114,8 @@ class MainScreen : KtxScreen {
         }
 
         camera.run {
-            val cameraX = char.pos.x + char.width / 2
-            val cameraY = char.pos.y + char.height / 2
+            val cameraX = player.pos.x + player.width / 2
+            val cameraY = player.pos.y + player.height / 2
             if (FLAG_CAMERA_STOP_AT_WORLD_BOUNDARIES) {
                 position.set(
                     cameraX.coerceIn(VIEWPORT_WIDTH / 2, worldBounds.width - VIEWPORT_WIDTH / 2),
@@ -139,9 +138,9 @@ class MainScreen : KtxScreen {
 
             projectionMatrix = camera.combined
 
-            val coord = textureRegionCoordinatesFromCharacter(char)
+            val coord = textureRegionCoordinatesFromCharacter(player)
 
-            draw(playerTextureRegions[coord.second][coord.first], char.pos.x, char.pos.y)
+            draw(playerTextureRegions[coord.second][coord.first], player.pos.x, player.pos.y)
 
             end()
         }
@@ -155,7 +154,7 @@ class MainScreen : KtxScreen {
             projectionMatrix = camera.combined
             color = Color.FIREBRICK
 
-            line(char.pos.run { vec2(x + char.width / 2, y + char.height / 2) }, camera.unproject(vec3(target)).run { vec2(x, y) })
+            line(player.pos.run { vec2(x + player.width / 2, y + player.height / 2) }, camera.unproject(vec3(target)).run { vec2(x, y) })
 
             end()
         }
@@ -163,13 +162,13 @@ class MainScreen : KtxScreen {
 
     fun update() {
         // Desired position
-        with (char) {
+        with (player) {
             preStep(GRAVITY)
 
             val newPos = pos + vel
 
             for (block in staticBlockExists) {
-                val charRect = Rectangle(newPos.x, newPos.y, char.width.toFloat(), char.height.toFloat())
+                val charRect = Rectangle(newPos.x, newPos.y, player.width.toFloat(), player.height.toFloat())
                 val blockRect = Rectangle(block.first * 32f, block.second * 32f, 32f, 32f)
 
                 // if x don't even overlap, skip
@@ -186,7 +185,7 @@ class MainScreen : KtxScreen {
             }
 
             for (block in staticBlockExists) {
-                val charRect = Rectangle(newPos.x, newPos.y, char.width.toFloat(), char.height.toFloat())
+                val charRect = Rectangle(newPos.x, newPos.y, player.width.toFloat(), player.height.toFloat())
                 val blockRect = Rectangle(block.first * 32f, block.second * 32f, 32f, 32f)
 
                 // if y don't even overlap, skip
@@ -204,14 +203,14 @@ class MainScreen : KtxScreen {
 
             if (newPos.x < worldBounds.x) {
                 newPos.x = 0f
-            } else if (newPos.x + char.width > worldBounds.x + worldBounds.width) {
-                newPos.x = worldBounds.x + worldBounds.width - char.width
+            } else if (newPos.x + player.width > worldBounds.x + worldBounds.width) {
+                newPos.x = worldBounds.x + worldBounds.width - player.width
             }
 
             if (newPos.y < worldBounds.y) {
                 newPos.y = 0f
-            } else if (newPos.y + char.height > worldBounds.y + worldBounds.height) {
-                newPos.y = worldBounds.y + worldBounds.height - char.height
+            } else if (newPos.y + player.height > worldBounds.y + worldBounds.height) {
+                newPos.y = worldBounds.y + worldBounds.height - player.height
             }
 
             if (pos.y == newPos.y) {
@@ -253,72 +252,11 @@ typealias Position = Vector2
 typealias Velocity = Vector2
 typealias Acceleration = Vector2
 
-fun textureRegionCoordinatesFromCharacter(char: Character): Pair<Int, Int> {
-    return if (char.verticalState == VerticalState.STATIC && (char.horizontalState == HorizontalState.STATIC || char.horizontalState == HorizontalState.MOVING_CANCELLED)) {
+fun textureRegionCoordinatesFromCharacter(player: Player): Pair<Int, Int> {
+    return if (player.verticalState == VerticalState.STATIC && (player.horizontalState == HorizontalState.STATIC || player.horizontalState == HorizontalState.MOVING_CANCELLED)) {
         0 to 0
     } else {
         1 to 0
-    }
-}
-
-class Character {
-    var horizontalState = HorizontalState.STATIC
-    var verticalState = VerticalState.MOVING
-    private var facing = Facing.RIGHT
-    val width = 32
-    val height = 32
-    val pos: Position = vec2(64f, 96f)
-    val vel: Velocity = vec2(0f, 0f)
-    val X_SPEED = 3f
-    val Y_SPEED = 10f
-
-    fun pressLeft() {
-        if (horizontalState == HorizontalState.MOVING && facing == Facing.RIGHT) horizontalState = HorizontalState.MOVING_CANCELLED
-        else if (horizontalState == HorizontalState.STATIC) horizontalState = HorizontalState.MOVING
-        facing = Facing.LEFT
-    }
-
-    fun releaseLeft() {
-        if (horizontalState == HorizontalState.MOVING) {
-            horizontalState = HorizontalState.STATIC
-        } else if (horizontalState == HorizontalState.MOVING_CANCELLED) {
-            horizontalState = HorizontalState.MOVING
-            facing = Facing.RIGHT
-        }
-    }
-
-    fun pressRight() {
-        if (horizontalState == HorizontalState.MOVING && facing == Facing.LEFT) horizontalState = HorizontalState.MOVING_CANCELLED
-        else if (horizontalState == HorizontalState.STATIC) horizontalState = HorizontalState.MOVING
-        facing = Facing.RIGHT
-    }
-
-    fun releaseRight() {
-        if (horizontalState == HorizontalState.MOVING) {
-            horizontalState = HorizontalState.STATIC
-        } else if (horizontalState == HorizontalState.MOVING_CANCELLED) {
-            horizontalState = HorizontalState.MOVING
-            facing = Facing.LEFT
-        }
-    }
-
-    fun jump() {
-        if (verticalState == VerticalState.STATIC) {
-            vel.y = Y_SPEED
-        }
-    }
-
-    fun preStep(acceleration: Acceleration) {
-        vel += acceleration
-
-        if (vel.y != 0f) verticalState = VerticalState.MOVING
-
-        if (horizontalState == HorizontalState.MOVING) {
-            pos.x += when(facing) {
-                Facing.LEFT -> -X_SPEED
-                Facing.RIGHT -> +X_SPEED
-            }
-        }
     }
 }
 
