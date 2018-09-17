@@ -1,7 +1,14 @@
 package com.bitwiserain.springshot.core
 
-import ktx.math.plusAssign
 import ktx.math.vec2
+
+private const val X_SPEED = 3f
+private const val Y_SPEED = 10f
+
+enum class Facing {
+    LEFT,
+    RIGHT
+}
 
 class Player {
     var horizontalState = HorizontalState.STATIC
@@ -11,8 +18,6 @@ class Player {
     val height = 32
     val pos: Position = vec2(64f, 96f)
     val vel: Velocity = vec2(0f, 0f)
-    val X_SPEED = 3f
-    val Y_SPEED = 10f
 
     fun pressLeft() {
         if (horizontalState == HorizontalState.MOVING && facing == Facing.RIGHT) horizontalState = HorizontalState.MOVING_CANCELLED
@@ -50,9 +55,7 @@ class Player {
         }
     }
 
-    fun preStep(acceleration: Acceleration) {
-        vel += acceleration
-
+    fun preStep() {
         if (vel.y != 0f) verticalState = VerticalState.MOVING
 
         if (horizontalState == HorizontalState.MOVING) {

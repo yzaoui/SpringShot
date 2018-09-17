@@ -3,7 +3,7 @@ package com.bitwiserain.springshot.desktop
 import com.badlogic.gdx.Files
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration
-import com.bitwiserain.core.Application
+import com.bitwiserain.springshot.core.Application
 
 object DesktopLauncher {
     @JvmStatic

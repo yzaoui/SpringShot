@@ -1,4 +1,4 @@
-package com.bitwiserain.core
+package com.bitwiserain.springshot.core
 
 import com.badlogic.gdx.Screen
 import ktx.app.KtxGame

@@ -24,35 +24,36 @@ import kotlin.math.roundToInt
 import kotlin.math.sign
 
 private const val TIMESTEP: Float = .01f
+private const val GRAVITY = -.3f
 private const val FLAG_CAMERA_STOP_AT_WORLD_BOUNDARIES = true
 private const val VIEWPORT_WIDTH = 640f
 private const val VIEWPORT_HEIGHT = 480f
 
 class MainScreen : KtxScreen {
-    val spriteBatch = SpriteBatch()
-    val playerTexture = Texture("player.png")
-    val playerTextureRegions = TextureRegion.split(playerTexture, 32, 32)
+    private val spriteBatch = SpriteBatch()
+    private val playerTexture = Texture("player.png")
+    private val playerTextureRegions = TextureRegion.split(playerTexture, 32, 32)
+    private val shapeRenderer = ShapeRenderer()
     val player = Player()
-    var accumulator = 0f
-    val shapeRenderer = ShapeRenderer()
+    private var timeAccumulator = 0f
     var held = false
     val target = vec2()
-    val tiledMap = TmxMapLoader().load("map.tmx")!!
-    val worldBounds = Rectangle(
+    private val tiledMap = TmxMapLoader().load("map.tmx")!!
+    private val worldBounds = Rectangle(
         0f,
         0f,
         (tiledMap.properties["width"] as Int) * 32f,
         (tiledMap.properties["height"] as Int) * 32f
     )
-    val tiledMapRenderer = OrthogonalTiledMapRenderer(tiledMap)
-    val camera = OrthographicCamera().apply {
+    private val tiledMapRenderer = OrthogonalTiledMapRenderer(tiledMap)
+    private val camera = OrthographicCamera().apply {
         setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT)
         update()
     }
 
-    val staticBlockExists: MutableSet<Pair<Int, Int>> = mutableSetOf()
+    private val staticBlockExists: MutableSet<Pair<Int, Int>> = mutableSetOf()
 
-    val inputProcessor = object : InputAdapter() {
+    private val inputProcessor = object : InputAdapter() {
         override fun keyDown(keycode: Int): Boolean {
             when (keycode) {
                 Input.Keys.LEFT, Input.Keys.A -> player.pressLeft()
@@ -106,11 +107,11 @@ class MainScreen : KtxScreen {
     }
 
     override fun render(delta: Float) {
-        accumulator += delta
+        timeAccumulator += delta
 
-        while (accumulator >= TIMESTEP) {
+        while (timeAccumulator >= TIMESTEP) {
             update()
-            accumulator -= TIMESTEP
+            timeAccumulator -= TIMESTEP
         }
 
         camera.run {
@@ -163,7 +164,9 @@ class MainScreen : KtxScreen {
     fun update() {
         // Desired position
         with (player) {
-            preStep(GRAVITY)
+            preStep()
+
+            vel.y += GRAVITY
 
             val newPos = pos + vel
 
@@ -241,16 +244,8 @@ enum class VerticalState {
     MOVING
 }
 
-enum class Facing {
-    LEFT,
-    RIGHT
-}
-
-private val GRAVITY = vec2(0f, -0.3f)
-
 typealias Position = Vector2
 typealias Velocity = Vector2
-typealias Acceleration = Vector2
 
 fun textureRegionCoordinatesFromCharacter(player: Player): Pair<Int, Int> {
     return if (player.verticalState == VerticalState.STATIC && (player.horizontalState == HorizontalState.STATIC || player.horizontalState == HorizontalState.MOVING_CANCELLED)) {
