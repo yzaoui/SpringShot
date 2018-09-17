@@ -30,29 +30,19 @@ private const val VIEWPORT_WIDTH = 640f
 private const val VIEWPORT_HEIGHT = 480f
 
 class MainScreen : KtxScreen {
+    /****************************
+     * LibGDX-related properties
+     ****************************/
     private val spriteBatch = SpriteBatch()
     private val playerTexture = Texture("player.png")
     private val playerTextureRegions = TextureRegion.split(playerTexture, 32, 32)
     private val shapeRenderer = ShapeRenderer()
-    val player = Player()
-    private var timeAccumulator = 0f
-    var held = false
-    val target = vec2()
     private val tiledMap = TmxMapLoader().load("map.tmx")!!
-    private val worldBounds = Rectangle(
-        0f,
-        0f,
-        (tiledMap.properties["width"] as Int) * 32f,
-        (tiledMap.properties["height"] as Int) * 32f
-    )
     private val tiledMapRenderer = OrthogonalTiledMapRenderer(tiledMap)
     private val camera = OrthographicCamera().apply {
         setToOrtho(false, VIEWPORT_WIDTH, VIEWPORT_HEIGHT)
         update()
     }
-
-    private val staticBlockExists: MutableSet<Pair<Int, Int>> = mutableSetOf()
-
     private val inputProcessor = object : InputAdapter() {
         override fun keyDown(keycode: Int): Boolean {
             when (keycode) {
@@ -94,12 +84,28 @@ class MainScreen : KtxScreen {
             return true
         }
     }
+    /****************************
+     * World-related properties
+     ****************************/
+    val player = Player()
+    private var timeAccumulator = 0f
+    var held = false
+    val target = vec2()
+    private val worldBounds = Rectangle(
+        0f,
+        0f,
+        (tiledMap.properties["width"] as Int) * 32f,
+        (tiledMap.properties["height"] as Int) * 32f
+    )
+    private val staticBlockExists: Set<Pair<Int, Int>>
 
     init {
+        val blocks = mutableSetOf<Pair<Int, Int>>()
         tiledMap.layers["collision"].objects.forEach {
             it as RectangleMapObject
-            staticBlockExists.add(it.rectangle.x.roundToInt() / 32 to it.rectangle.y.roundToInt() / 32)
+            blocks.add(it.rectangle.x.roundToInt() / 32 to it.rectangle.y.roundToInt() / 32)
         }
+        staticBlockExists = blocks
     }
 
     override fun show() {
@@ -231,17 +237,6 @@ class MainScreen : KtxScreen {
         playerTexture.dispose()
         tiledMap.dispose()
     }
-}
-
-enum class HorizontalState {
-    STATIC,
-    MOVING,
-    MOVING_CANCELLED
-}
-
-enum class VerticalState {
-    STATIC,
-    MOVING
 }
 
 typealias Position = Vector2

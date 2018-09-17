@@ -10,6 +10,17 @@ enum class Facing {
     RIGHT
 }
 
+enum class HorizontalState {
+    STATIC,
+    MOVING,
+    MOVING_CANCELLED
+}
+
+enum class VerticalState {
+    STATIC,
+    MOVING
+}
+
 class Player {
     var horizontalState = HorizontalState.STATIC
     var verticalState = VerticalState.MOVING
