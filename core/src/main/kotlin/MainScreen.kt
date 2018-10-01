@@ -67,13 +67,13 @@ class MainScreen : KtxScreen {
 
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             held = true
-            target.set(screenX.toFloat(), screenY.toFloat())
+            mouseTarget.set(screenX.toFloat(), screenY.toFloat())
 
             return true
         }
 
         override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-            target.set(screenX.toFloat(), screenY.toFloat())
+            mouseTarget.set(screenX.toFloat(), screenY.toFloat())
 
             return true
         }
@@ -90,12 +90,12 @@ class MainScreen : KtxScreen {
     val player = Player()
     private var timeAccumulator = 0f
     var held = false
-    val target = vec2()
+    val mouseTarget = vec2()
     private val worldBounds = Rectangle(
         0f,
         0f,
-        (tiledMap.properties["width"] as Int) * 32f,
-        (tiledMap.properties["height"] as Int) * 32f
+        ((tiledMap.properties["width"] as Int) * (tiledMap.properties["tilewidth"] as Int)).toFloat(),
+        ((tiledMap.properties["height"] as Int) * (tiledMap.properties["tileheight"] as Int)).toFloat()
     )
     private val staticBlockExists: Set<Pair<Int, Int>>
 
@@ -103,7 +103,7 @@ class MainScreen : KtxScreen {
         val blocks = mutableSetOf<Pair<Int, Int>>()
         tiledMap.layers["collision"].objects.forEach {
             it as RectangleMapObject
-            blocks.add(it.rectangle.x.roundToInt() / 32 to it.rectangle.y.roundToInt() / 32)
+            blocks.add(it.rectangle.x.roundToInt() / 16 to it.rectangle.y.roundToInt() / 16)
         }
         staticBlockExists = blocks
     }
@@ -161,7 +161,7 @@ class MainScreen : KtxScreen {
             projectionMatrix = camera.combined
             color = Color.FIREBRICK
 
-            line(player.position.run { vec2(x + player.width / 2, y + player.height / 2) }, camera.unproject(vec3(target)).run { vec2(x, y) })
+            line(player.position.run { vec2(x + player.width / 2, y + player.height / 2) }, camera.unproject(vec3(mouseTarget)).run { vec2(x, y) })
 
             end()
         }
@@ -178,7 +178,7 @@ class MainScreen : KtxScreen {
 
             for (block in staticBlockExists) {
                 val charRect = Rectangle(newPos.x, newPos.y, player.width.toFloat(), player.height.toFloat())
-                val blockRect = Rectangle(block.first * 32f, block.second * 32f, 32f, 32f)
+                val blockRect = Rectangle(block.first * 16f, block.second * 16f, 16f, 16f)
 
                 // if x don't even overlap, skip
                 if (charRect.x > blockRect.x + blockRect.width || charRect.x + charRect.width < blockRect.x) continue
@@ -195,7 +195,7 @@ class MainScreen : KtxScreen {
 
             for (block in staticBlockExists) {
                 val charRect = Rectangle(newPos.x, newPos.y, player.width.toFloat(), player.height.toFloat())
-                val blockRect = Rectangle(block.first * 32f, block.second * 32f, 32f, 32f)
+                val blockRect = Rectangle(block.first * 16f, block.second * 16f, 16f, 16f)
 
                 // if y don't even overlap, skip
                 if (charRect.y > blockRect.y + blockRect.height || charRect.y + charRect.height < blockRect.y) continue
