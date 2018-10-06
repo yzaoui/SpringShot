@@ -15,13 +15,10 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer
 import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
 import ktx.app.KtxScreen
-import ktx.math.plus
-import ktx.math.vec2
-import ktx.math.vec3
-import kotlin.math.absoluteValue
-import kotlin.math.roundToInt
-import kotlin.math.sign
+import ktx.math.*
+import kotlin.math.*
 
 private const val TIMESTEP: Float = .01f
 private const val GRAVITY = -.3f
@@ -80,6 +77,7 @@ class MainScreen : KtxScreen {
 
         override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             held = false
+            touchReleased()
 
             return true
         }
@@ -98,6 +96,7 @@ class MainScreen : KtxScreen {
         ((tiledMap.properties["height"] as Int) * (tiledMap.properties["tileheight"] as Int)).toFloat()
     )
     private val staticBlockExists: Set<Pair<Int, Int>>
+    private var projectiles: MutableList<Projectile> = mutableListOf()
 
     init {
         val blocks = mutableSetOf<Pair<Int, Int>>()
@@ -140,6 +139,9 @@ class MainScreen : KtxScreen {
             glClear(GL20.GL_COLOR_BUFFER_BIT)
         }
 
+        tiledMapRenderer.setView(camera)
+        tiledMapRenderer.render()
+
         with (spriteBatch) {
             begin()
 
@@ -152,8 +154,17 @@ class MainScreen : KtxScreen {
             end()
         }
 
-        tiledMapRenderer.setView(camera)
-        tiledMapRenderer.render()
+        with (shapeRenderer) {
+            begin(ShapeRenderer.ShapeType.Filled)
+
+            projectionMatrix = camera.combined
+
+            for (proj in projectiles) {
+                circle(proj.position.x + 4f, proj.position.y + 4f, 4f)
+            }
+
+            end()
+        }
 
         if (held) with (shapeRenderer) {
             begin(ShapeRenderer.ShapeType.Line)
@@ -161,7 +172,7 @@ class MainScreen : KtxScreen {
             projectionMatrix = camera.combined
             color = Color.FIREBRICK
 
-            line(player.position.run { vec2(x + player.width / 2, y + player.height / 2) }, camera.unproject(vec3(mouseTarget)).run { vec2(x, y) })
+            line(player.position.run { vec2(x + player.width / 2, y + player.height / 2) }, camera.unproject(vec3(mouseTarget)).toVector2())
 
             end()
         }
@@ -230,12 +241,36 @@ class MainScreen : KtxScreen {
             position.x = newPos.x
             position.y = newPos.y
         }
+
+        for (proj in projectiles) {
+        }
+
+        projectiles = projectiles.asSequence().filter {
+            it.position.plusAssign(it.velocity)
+            it.velocity.y += GRAVITY
+
+            it.position in worldBounds
+        }.toMutableList()
     }
 
     override fun dispose() {
         spriteBatch.dispose()
         playerTexture.dispose()
         tiledMap.dispose()
+    }
+
+    fun touchReleased() {
+        val mouseTargetInWorld = camera.unproject(vec3(mouseTarget)).toVector2()
+        val playerToMouse = mouseTargetInWorld - player.position
+
+        // Since position is bottom left, we need to center to player position, then shift to projectile's bottom left
+        val projectilePosition = player.position.cpy() // bottom left of player
+            .plus(vec2(player.width.toFloat() / 2, player.height.toFloat() / 2)) // center of player
+            .minus(vec2(4f, 4f)) // projectile center centered with player center
+
+        val projectileVelocity = vec2Polar(10f, playerToMouse.angleRad())
+
+        projectiles.add(Projectile(projectilePosition, projectileVelocity))
     }
 }
 
@@ -279,4 +314,15 @@ fun Rectangle.intersectingVector2(other: Rectangle): Vector2 {
     }
 
     return displacement
+}
+
+fun Vector3.toVector2() = Vector2(x, y)
+
+typealias AngleRadians = Float
+
+fun vec2Polar(magnitude: Float, angle: AngleRadians): Vector2 {
+    return vec2(
+        x = magnitude * cos(angle),
+        y = magnitude * sin(angle)
+    )
 }

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="64" height="54" tilewidth="16" tileheight="16" infinite="0" nextobjectid="135">
+<map version="1.0" tiledversion="1.1.6" orientation="orthogonal" renderorder="right-down" width="64" height="54" tilewidth="16" tileheight="16" infinite="0" nextobjectid="141">
  <tileset firstgid="1" source="main.tsx"/>
  <layer name="foreground" width="64" height="54">
   <data encoding="base64" compression="zlib">
-   eJzt1ssKhTAMQEH1/z/alZtA8VGikcxAFheEy6GtdVkAAAAAAAAA4L41TDdbmG7069ev/5hu90Ds77YPunYfuvXH771u/aPzrl+//rz7P753vvrOOOvP2gdV9lt2d/Xvx+z+r98jo3M2uu/v9sf1rbbeV8/30/743NvrPbu+f++f7aven72+Z3P1/0e/Zye7r/rsW/kCdQ==
+   eJzt1ssKg0AMQFHb//9oV0IJDo4dgpGcA9lIoVych9sGAAAAAAAAAPd9wnTzDdONfv369R/T7R6I/d3WQdfuQ7f++L3XrX+03/Xr1593/8dz56nvjKv+rHVQZb1ld1f/flztP2v7ffb0OTLaZ6P7/m7/2W8qnZuz+/ut/avv9+39q33V+7Pf79XM/P/Ms38nu6/67D3xAmk=
   </data>
  </layer>
  <objectgroup name="collision">
-  <object id="0" x="0" y="832" width="16" height="16"/>
+  <object id="135" x="0" y="832" width="16" height="16"/>
   <object id="1" x="16" y="832" width="16" height="16"/>
   <object id="2" x="32" y="832" width="16" height="16"/>
   <object id="3" x="48" y="832" width="16" height="16"/>
@@ -92,22 +92,14 @@
   <object id="82" x="624" y="832" width="16" height="16"/>
   <object id="83" x="640" y="816" width="16" height="16"/>
   <object id="84" x="640" y="800" width="16" height="16"/>
-  <object id="85" x="640" y="768" width="16" height="16"/>
+  <object id="85" x="640" y="752" width="16" height="16"/>
   <object id="86" x="640" y="784" width="16" height="16"/>
-  <object id="87" x="656" y="768" width="16" height="16"/>
-  <object id="88" x="656" y="784" width="16" height="16"/>
-  <object id="89" x="656" y="800" width="16" height="16"/>
-  <object id="90" x="656" y="816" width="16" height="16"/>
   <object id="91" x="672" y="832" width="16" height="16"/>
   <object id="92" x="688" y="832" width="16" height="16"/>
-  <object id="93" x="704" y="816" width="16" height="16"/>
   <object id="94" x="720" y="816" width="16" height="16"/>
   <object id="95" x="720" y="800" width="16" height="16"/>
-  <object id="96" x="704" y="800" width="16" height="16"/>
-  <object id="97" x="704" y="784" width="16" height="16"/>
   <object id="98" x="720" y="784" width="16" height="16"/>
-  <object id="99" x="720" y="768" width="16" height="16"/>
-  <object id="100" x="704" y="768" width="16" height="16"/>
+  <object id="99" x="720" y="752" width="16" height="16"/>
   <object id="101" x="784" y="752" width="16" height="16"/>
   <object id="102" x="768" y="752" width="16" height="16"/>
   <object id="103" x="768" y="736" width="16" height="16"/>
@@ -142,5 +134,9 @@
   <object id="132" x="976" y="832" width="16" height="16"/>
   <object id="133" x="992" y="832" width="16" height="16"/>
   <object id="134" x="1008" y="832" width="16" height="16"/>
+  <object id="137" x="720" y="768" width="16" height="16"/>
+  <object id="138" x="640" y="768" width="16" height="16"/>
+  <object id="139" x="656" y="832" width="16" height="16"/>
+  <object id="140" x="704" y="832" width="16" height="16"/>
  </objectgroup>
 </map>
