@@ -17,6 +17,8 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import ktx.app.KtxScreen
+import ktx.graphics.circle
+import ktx.graphics.use
 import ktx.math.*
 import kotlin.math.*
 
@@ -142,16 +144,12 @@ class MainScreen : KtxScreen {
         tiledMapRenderer.setView(camera)
         tiledMapRenderer.render()
 
-        with (spriteBatch) {
-            begin()
-
-            projectionMatrix = camera.combined
+        spriteBatch.use {
+            it.projectionMatrix = camera.combined
 
             val coord = textureRegionCoordinatesFromCharacter(player)
 
-            draw(playerTextureRegions[coord.second][coord.first], player.position.x, player.position.y)
-
-            end()
+            it.draw(playerTextureRegions[coord.second][coord.first], player.position.x, player.position.y)
         }
 
         with (shapeRenderer) {
@@ -160,7 +158,7 @@ class MainScreen : KtxScreen {
             projectionMatrix = camera.combined
 
             for (proj in projectiles) {
-                circle(proj.position.x + 4f, proj.position.y + 4f, 4f)
+                circle(proj.position + vec2(4f, 4f), 4f)
             }
 
             end()
