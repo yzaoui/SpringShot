@@ -45,7 +45,7 @@ class MainScreen : KtxScreen {
             when (keycode) {
                 Input.Keys.LEFT, Input.Keys.A -> player.pressLeft()
                 Input.Keys.RIGHT, Input.Keys.D -> player.pressRight()
-                Input.Keys.UP, Input.Keys.W -> player.jump()
+                Input.Keys.UP, Input.Keys.W, Input.Keys.SPACE -> player.jump()
                 else -> return super.keyDown(keycode)
             }
 
