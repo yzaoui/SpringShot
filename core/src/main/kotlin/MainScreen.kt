@@ -17,6 +17,7 @@ import com.badlogic.gdx.math.Rectangle
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import ktx.app.KtxScreen
+import ktx.assets.file
 import ktx.graphics.circle
 import ktx.graphics.use
 import ktx.math.*
@@ -32,6 +33,10 @@ class MainScreen : KtxScreen {
     /****************************
      * LibGDX-related properties
      ****************************/
+    private val backgroundMusic = Gdx.audio.newMusic(file("music.wav")).apply {
+        isLooping = true
+        play()
+    }
     private val spriteBatch = SpriteBatch()
     private val playerTexture = Texture("player.png")
     private val playerTextureRegions = TextureRegion.split(playerTexture, 32, 32)
@@ -255,6 +260,7 @@ class MainScreen : KtxScreen {
         spriteBatch.dispose()
         playerTexture.dispose()
         tiledMap.dispose()
+        backgroundMusic.dispose()
     }
 
     fun touchReleased() {
