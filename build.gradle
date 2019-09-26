@@ -1,7 +1,7 @@
 buildscript {
-    ext.kotlinVersion = "1.2.71"
-    ext.gdxVersion = "1.9.8"
-    ext.ktxVersion = "1.9.8-b4"
+    ext.kotlinVersion = "1.3.50"
+    ext.gdxVersion = "1.9.10"
+    ext.ktxVersion = "1.9.10-b2"
 
     repositories {
         mavenLocal()
